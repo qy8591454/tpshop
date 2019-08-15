@@ -1,0 +1,136 @@
+{include file="header"}
+<section class="Hui-article-box">
+    <nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 产品管理 <span class="c-gray en">&gt;</span> 货物管理 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+    <div class="Hui-article">
+        <article class="cl pd-20">
+            <div>
+                <!--<form class="Huiform" method="post" action="" target="_self">-->
+                    <!-- 给个属性分类的下拉框 -->
+                    <select id="attr_cate" onchange="get_attr()">
+                        <option></option>
+                    </select>
+					
+					<span id="add_span"></span>
+            </div>
+            <input type="hidden" id="__token__" name="__token__" value="{$Request.token}" />
+            
+            <div class="mt-10">
+                <dl class="permission-list" id='dl'>        
+                <dt></dt>
+                    <dd></dd>           
+                </dl>
+
+            </div>
+            <button id="add" type="button" class="btn btn-success" name=""><i class="Hui-iconfont">&#xe600;</i> 确定</button>
+        </article>
+    </div>
+</section>
+
+{include file="footer"}
+<script>
+    function get_attr(){
+        var id=$('#attr_cate').val()
+        var goods_id={$goods_id}
+
+        $.ajax({
+            url:"{:url('goodsattr/getattr')}",
+            data:{
+                id:id,
+                goods_id:goods_id
+
+            },
+            success:function(res){
+                console.log(res)
+                data=res.data
+                var dt=''
+                $.each(data,function(key,value){
+                    dt=dt+"<dt>"+key+"</dt><dd>"
+                    for (var i = 0; i < value.length; i++) {
+                        dt=dt+"<input class='mycheckbox' id='ad"+value[i].ad_id+"' type='checkbox' a_id='"+value[i].id+"' ad_id='"+value[i].ad_id+"'/>"+value[i].ad_name
+                    }
+                    dt=dt+"</dd>"
+                })
+                console.log(dt)
+                $('#dl').html(dt)
+
+                var mydefault=res.default
+                console.log(mydefault)
+                for (var i = 0; i < mydefault.length; i++) {
+                    id=mydefault[i].attr_details_id
+                    $('#ad'+id).prop('checked',true)
+                }
+
+
+            }
+        })
+
+    }
+
+	$(document).ready(function(){
+        $('#add').click(function(){
+            var checkbox=$('.mycheckbox:checked')
+            var arr=[]
+            checkbox.each(function(){
+                var a_id=$(this).attr('a_id')
+                var ad_id=$(this).attr('ad_id')
+                arr.push(a_id+'-'+ad_id)
+
+            })
+            console.log(arr)
+            var attr_cate=$('#attr_cate').val()
+            var goods_id={$goods_id}
+
+           $.ajax({
+                url:"{:url('goodsattr/add')}",
+                data:{
+                    goods_id:goods_id,
+                    arr:arr,
+                    attr_cate:attr_cate
+                },
+                type:'post',
+                success:function(res){
+                    console.log(res)
+                }
+            })
+
+        })
+        //定义一个show方法
+        function show(){
+            var goods_id={$goods_id}
+
+            $.ajax({
+                url:"{:url('goodsattr/show')}",
+                //转json格式
+                dataType:'json',
+                data:{
+                    goods_id:goods_id,
+                },
+                success:function(res){
+                    console.log(res)
+                    data=res.data
+                    var option="<option value='0'>请选择</option>"
+                    //循环展示
+                    for (var i = 0; i < data.length; i++) {
+                        if (data[i].id==res.default[0].attr_cate) {
+                            option=option+"<option value='"+data[i].id+"' selected>"+data[i].name+"</option>";
+                        }else{
+                            option=option+"<option value='"+data[i].id+"'>"+data[i].name+"</option>"
+                        }
+                    }
+                    //循环展示之后要赋值
+                    $('#attr_cate').html(option)
+
+                    if(res.default[0].attr_cate!=null){
+                        get_attr()
+                    }
+                }
+            })
+        }
+        show()
+
+
+
+	   
+	})
+
+</script>

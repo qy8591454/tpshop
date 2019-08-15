@@ -1,0 +1,103 @@
+{include file="header"}
+
+<section class="Hui-article-box">
+	<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 商品管理 <span class="c-gray en">&gt;</span> 货品管理 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+		
+	<div class="Hui-article">
+		<article class="cl pd-20">
+			<form action="" method="post" class="form form-horizontal" id="form-admin-role-add">
+				<div class="row cl">
+					<input type="" hidden="" id="__token__" name="__token__" value="{$Request.token}" />
+					
+				</div>
+				<div class="row cl">
+					
+					<div class="formControls col-xs-8 col-sm-9">  
+						<dl class="permission-list" id="aa">					
+						</dl>
+						<br>
+						<input type="hidden" id="g_id" name="" value="{$g_id}">
+						<input type="hidden" id="c_id" name="" value="{$c_id}">
+						商品单价<input type=""  id="price" value="">(元)
+						<br>
+						商品库存<input type=""  id="number" value="">(个)
+					</div>
+					<br>
+					 <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-3">商品属性：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <dl class="permission-list" id="permission-list"></dl>
+            </div>
+        </div>
+				<div class="row cl">
+					<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+						<button type="button" class="btn btn-success radius" id="add" name="admin-role-save"><i class="icon-ok"></i> 确定</button>
+					</div>
+				</div>
+			</form>
+		</article>
+	</div>
+</section>
+
+{include file="footer"}
+<script >
+	
+	$(document).ready(function() {
+        show();
+    })
+    function show(){
+        var goods_id=$("#g_id").val()
+        $.ajax({
+            url:'{:url("goodshp/attrShow")}',
+            type:'post',
+            data:{
+                goods_id:goods_id,
+            },
+            dataType:"json",
+            success:function (result) {
+                var data=result.data;
+                dl=""
+                $.each(data,function( key, value){
+                    dl=dl+"<dt>"+key+"</dt><dd><dl class='cl permission-list2'>";
+                    // console.log(value)
+                    $.each(value,function( key1, value1){
+                        dl=dl+"<label class=''><input type='checkbox' class='mycheckbox' value='"+value1['atid']+"'  >"+value1['atname']+"</label>&nbsp;&nbsp;&nbsp;"
+                    });
+                    dl=dl+"</dd>";
+                });
+                // console.log(dl)
+                $('#permission-list').html(dl)
+            }
+        })
+    }
+       $('#add').click(function () {
+        var mycheckbox=$('.mycheckbox:checked')
+        var goods_id=$('#g_id').val()
+        var price=$('#price').val()
+        var number=$('#number').val()
+        var attr_id=''
+        for (var i = 0; i< mycheckbox.length;i++){
+            attr_id=attr_id+','+mycheckbox[i].value
+        }
+        $.ajax({
+            url:'{:url("goodshp/shop_goods_add")}',
+            type:'post',
+            data:{
+                goods_id:goods_id,
+                price:price,
+                number:number,
+                attr_id:attr_id,
+            },
+            dataType:'json',
+            success:function (result){
+                if (result.status=='ok'){
+                    location.href="{:url('goods/list')}"
+                }
+            }
+        })
+    });
+
+</script>
+
+</body>
+</html>

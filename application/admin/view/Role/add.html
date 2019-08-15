@@ -1,0 +1,78 @@
+{include file="header"}
+<article class="cl pd-20">
+	<form class="form form-horizontal" id="form-admin-role-add">
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>角色名称：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" id="name" name="name" datatype="*4-16" nullmsg="用户账户不能为空">
+			</div>
+			<input id='__token__' type="hidden" value="{$Request.token}" hidden="" />
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3">备注：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" id="description" name="">
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3">网站角色：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<dl class="permission-list" id="permission-list">					
+				</dl>
+			</div>
+		</div>
+		<div class="row cl">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+				<button type="button" class="btn btn-success radius" id="add" name="admin-role-save"><i class="icon-ok"></i> 确定</button>
+			</div>
+		</div>
+	</form>
+</article>
+
+{include file="footer"}
+
+<script>
+	$('#add').click(function(){
+		var __token__=$('#__token__').val()
+		var name=$('#name').val()
+		var description=$('#description').val()
+		var mycheckbox=$('.mycheckbox:checked')
+		var permission_id=''
+		for (var i = 0; i < mycheckbox.length; i++) {
+			permission_id=permission_id+','+mycheckbox[i].value
+		}
+		$.ajax({
+		url:'{:url("role/addaction")}',
+		type:'post',
+		data:{
+			name:name,
+			description:description,
+			permission_id:permission_id,
+			__token__:__token__,
+		},
+		success:function(res){
+			getToken()
+			console.log(res)
+		}
+	})
+	})
+	$.ajax({
+		url:'{:url("role/permissionShow")}',
+		success:function(res){
+			var data=res.data
+			//console.log(res)
+			dl=''
+			$.each(data, function( key, value ){
+				dl=dl+"<dt><label class='' style='color:red'><input type='checkbox' value=''>"+key+"</label></dt><dd><dl class='cl permission-list2'>"
+				//console.log(value)
+				$.each(value, function( key1, value1 ){
+					dl=dl+"<label class=''><input type='checkbox' class='mycheckbox' value='"+value1['id']+"'>"+value1['name']+"</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+				})
+				dl=dl+"</dd>";
+			});
+				//console.log(dl)
+				$('#permission-list').html(dl)
+
+		}
+	})
+</script>

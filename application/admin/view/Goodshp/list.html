@@ -1,0 +1,68 @@
+{include file="header"}
+<section class="Hui-article-box">
+    <nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 产品管理 <span class="c-gray en">&gt;</span> 货品管理 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+    <div class="Hui-article">
+        <article class="cl pd-20">
+            <div class="cl pd-5 bg-1 bk-gray"> <span class="l"> <a href="javascript:;" onclick="datadel()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a> <a class="btn btn-primary radius" href="{:url('goodshp/add')}?g_id={$g_id}&c_id={$c_id}"><i class="Hui-iconfont">&#xe600;</i> 添加货品</a> </span> <span class="r">共有数据：<strong>54</strong> 条</span> </div>
+            <input type="hidden" id="__token__" name="__token__" value="{$Request.token}" />
+
+            <div class="mt-10">
+                
+                <table class="table table-border table-bordered table-bg table-sort">
+                    <input type="text" name="" value="{$g_id}" hidden="" id="goods_id">
+                    <thead>
+                        <tr class="text-c">
+                            <th width="25"><input type="checkbox" name="" value=""></th>
+                            <th width="70">ID</th>
+                            <th width="120">单品详情</th>
+                            <th width="120">单价</th>
+                            <th width="120">库存</th>
+                            <th width="70">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </article>
+    </div>
+</section>
+
+{include file="footer"}
+<script>
+    function getToken() {
+        $.ajax({
+            url:"{:url('common/commontoken')}",
+            dataType:'json',
+            success:function(res){
+                $('#__token__').val(res.token);
+            }
+        })
+    }   
+        //定义一个show方法
+        function show(){
+            var goods_id=$('#goods_id').val()
+            $.ajax({
+                url:"{:url('goodshp/show')}",
+                //转json格式
+                dataType:'json',
+                data:{
+                    goods_id:goods_id,
+                },
+                success:function(res){
+                    console.log(res)
+                    data=res.data
+                    var tr=''
+                    //循环展示
+                    for (var i = 0; i < data.length; i++) {
+                        tr=tr+"<tr class='text-c'><td><input name='id[]' type='checkbox' value='"+data[i].id+"'></td><td>"+data[i].id+"</td><td>"+data[i].attr_name+"</td><td>"+data[i].price+"</td><td>"+data[i].number+"</td><td class='f-14 product-brand-manage'><a style='text-decoration:none' title='编辑' onclick='modaldemo("+data[i].id+")'><i class='Hui-iconfont'>&#xe6df;</i></a><a style='text-decoration:none' class='ml-5' title='删除' onclick='dele("+data[i].id+")'><i class='Hui-iconfont'>&#xe6e2;</i></a></td></tr>"
+                    }
+                    //循环展示之后要赋值
+                    $(".table tbody").html(tr)
+                }
+            })
+        }
+        show()
+
+
+</script>

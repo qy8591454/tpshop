@@ -1,0 +1,81 @@
+{include file="header"}
+<article class="cl pd-20">
+	<form class="form form-horizontal" id="form-admin-role-add">
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>角色名称：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<input type="text" class="input-text" value="" placeholder="" id="name" name="name" datatype="*4-16" nullmsg="用户账户不能为空">
+			</div>
+			<input id='__token__' type="hidden" value="{$Request.token}" hidden="" />
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3">分类：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<select name="cate_id" id="cate_id">
+					<option value="0">分类</option>
+				</select>
+			</div>
+		</div>
+		<div class="row cl">
+			<label class="form-label col-xs-4 col-sm-3">品牌：</label>
+			<div class="formControls col-xs-8 col-sm-9">
+				<select name="brand_id" id="brand_id">
+					<option value="0">品牌</option>
+				</select>
+			</div>
+		</div>
+		<div class="row cl">
+			<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+				<button type="button" class="btn btn-success radius" id="add" name="admin-role-save"><i class="icon-ok"></i> 确定</button>
+			</div>
+		</div>
+	</form>
+</article>
+
+{include file="footer"}
+
+<script>
+	$('#add').click(function(){
+		var __token__=$('#__token__').val()
+		var name=$('#name').val()
+		var cate_id=$('#cate_id').val()
+		var brand_id=$('#brand_id').val()
+		$.ajax({
+		url:'{:url("goodsimg/addaction")}',
+		type:'post',
+		data:{
+			name:name,
+			cate_id:cate_id,
+			brand_id:brand_id,
+			__token__:__token__,
+		},
+		success:function(res){
+			getToken()
+			console.log(res)
+		}
+	})
+	})
+	$.ajax({
+		url:'{:url("brand/show")}',
+		success:function(res){
+			var data=res.data
+			console.log(data)
+			var option=''
+			$.each(data, function( key, value ){
+				var id=value['id']
+				var name=value['name']
+				option=option+"<option value='"+id+"'>"+name+"</option>";
+			});
+				//console.log(dl)
+				$('#brand_id').html(option)
+
+		}
+	})
+	$.ajax({
+		url:'{:url("goods/showcate")}',
+		success:function(res){
+		    $('#cate_id').html(res)
+
+		}
+	})
+</script>

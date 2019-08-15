@@ -1,0 +1,256 @@
+{include file="header"}
+<section class="Hui-article-box">
+    <nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 产品管理 <span class="c-gray en">&gt;</span> 属性管理 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+
+
+    <div class="Hui-article">
+        <article class="cl pd-20">
+            <div>
+                <!--<form class="Huiform" method="post" action="" target="_self">-->
+                    <select id="attr_cate" onchange="change_attr_cate()">
+                        <option></option>
+                    </select>
+                    <select id="attribute" onchange="change_attr()">
+                        <option value='0'>先选择分类</option>
+                    </select>
+                    <input type="text" id="name" placeholder="细节" value="" class="input-text" style="width:160px">
+					<button id="add" type="button" class="btn btn-success" name=""><i class="Hui-iconfont">&#xe600;</i> 添加</button>
+					<span id="add_span"></span>
+            </div>
+            <input type="" id="__token__" name="__token__" value="{$Request.token}" />
+            <div class="cl pd-5 bg-1 bk-gray mt-20"> <span class="l"><a onclick="datadel()" class="btn btn-danger radius"><i class="Hui-iconfont">&#xe6e2;</i> 批量删除</a></span> <span class="r">共有数据：<strong>54</strong> 条</span> </div>
+            <div class="mt-10">
+                <table class="table table-border table-bordered table-bg table-sort">
+                    <thead>
+                    <tr class="text-c">
+                        <th width="25"><input type="checkbox" name="" value=""></th>
+                        <th width="70">ID</th>
+                        <th width="200">属性</th>
+                        <th width="200">细节</th>                        
+                        <th width="100">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </article>
+    </div>
+</section>
+
+{include file="footer"}
+<script>
+    function show_attr_cate(){
+        $.ajax({
+            url:"{:url('attrcategory/show')}",
+            dataType:'json',
+            success:function(res){
+                var option="<option value='0'>分类</option>"
+                for (var i = 0; i < res.length; i++) {
+                    option=option+"<option value='"+res[i].id+"'>"+res[i].name+"</option>"
+                }
+                $('#attr_cate').html(option);
+            }
+
+        })
+
+    }
+    show_attr_cate()
+    function change_attr(){
+        show()
+    }
+
+    function change_attr_cate(){
+        var attr_cate_id=$('#attr_cate').val()
+        if (attr_cate_id!=0) {
+            $.ajax({
+                url:"{:url('attribute/show')}",
+                data:{
+                    attr_cate_id:attr_cate_id
+                },
+                dataType:'json',
+                success:function(res){
+                    if (res.data=='') {
+                        $('#attribute').html("<option value='0'>空的</option>");
+
+                    }else{
+                        var option=""
+                        for (var i = 0; i < res.data.length; i++) {
+                            option=option+"<option value='"+res.data[i].aid+"'>"+res.data[i].aname+"</option>"
+                        }
+                        $('#attribute').html(option);
+                    }
+                    
+                }
+
+            })
+
+        }else{
+             $('#attribute').html("<option value='0'>先选择分类</option>");
+        }
+    }
+
+
+
+    function show(){
+        var attribute_id=$('#attribute').val()
+        var tr=''
+        $.ajax({
+            url:"{:url('attrdetails/show')}",
+            data:{
+                attribute_id:attribute_id
+            },
+            dataType:'json',
+            success:function(res){
+                    if (res.status=='error'){
+                        $(".table tbody").html("<tr><td colspan='5' class='text-c'>"+res.data+"</td></tr>");
+                    }else{
+                        var data=res.data;
+                        var tr='';
+                        if (res.status=='ok'){
+                            for (var i=0; i<data.length;i++){
+                                tr=tr+"<tr><td><input type='checkbox'></td><td>"+data[i]['id']+"</td><td>"+data[i]['name']+"</td><td class='f-14 product-brand-manage'><a style='text-decoration:none'  title='编辑'><i class='Hui-iconfont'>&#xe6df;</i></a> &nbsp;&nbsp;&nbsp;<a style='text-decoration:none' class='ml-5' onclick='del("+data[i]['id']+")' ' title='删除'><i class='Hui-iconfont'>&#xe6e2;</i></a></td></tr>"
+                            }
+                            $(".table tbody").html(tr);
+                        }
+                    }
+                }
+        })
+    }
+     $(document).ready(function(){
+        $("#add").click(function(){
+            var __token__=$('#__token__').val()
+            var name=$('#name').val()
+            var attribute_id=$('#attribute').val()
+            $.ajax({
+                url:'{:url("attrdetails/addaction")}',
+                type:'post',
+                data:{
+                    __token__:__token__,
+                    name:name,
+                    attribute_id:attribute_id,
+                },
+                success:function(res){
+                    getToken()
+                    console.log(res)
+                    if (res.status=='ok') {
+                        show()
+                    }
+                    
+                }
+            })
+            
+        })
+    });
+
+
+	function img_update(id,logo){
+        $("#modal-demo").modal("show")
+        $("#b_id").val(id);
+        $("#b_logo").attr("src","__STATIC__/images/"+logo);
+        $("#b_img").val(logo);
+    }
+	function brand_update(id,name,description){
+        $("#modal").modal("show")
+        $("#id").val(id);
+        $("#b_name").val(name);
+        $("#b_description").val(description);
+    }
+	$("#b_update").click(function () {
+        var id = $('#id').val()
+        var name = $('#b_name').val()
+        var description = $('#b_description').val()
+        $.ajax({
+            url:"{:url('brand/update')}",
+            type:'post',
+            data:{
+                id:id,
+                name:name,
+                description:description
+            },
+            dataType:'json',
+            success:function(result){
+                console.log(result)
+                if (result.status=='ok'){
+                    show();
+                    // token();
+                    $("#modal").modal("hide")
+                }
+                if (result.status=='error'){
+                    show();
+                    // token();
+                    $("#modal").modal("hide")
+                }
+            }
+        })
+    })
+	$('#chooseImage').on('change',function(){
+        var filePath = $(this).val(),         //获取到input的value，里面是文件的路径
+            fileFormat = filePath.substring(filePath.lastIndexOf(".")).toLowerCase(),
+            src = window.URL.createObjectURL(this.files[0]); //转成可以在本地预览的格式
+
+
+        // 检查是否是图片
+        if( !fileFormat.match(/.png|.jpg|.jpeg/) ) {
+            error_prompt_alert('上传错误,文件格式必须为：png/jpg/jpeg');
+            return;
+        }
+
+
+        $('#b_logoto').html("<img src='"+src+"'style='height: 120px;width: 200px'>");
+    });
+	function mydelete(id) {
+        $.ajax({
+            url: "{:url('brand/delete')}",
+            type: 'post',
+            data: {
+                id:id,
+            },
+            dataType:'json',
+            success:function (result) {
+                if (result.status=='ok'){
+                    // $('#token_delete').html(result.token)
+                    show();
+                }
+            }
+        })
+    }
+	function b_die(){
+        $('#chooseImage').val('');
+        $('#b_logoto').html(" ");
+    }
+	$(function($) {
+                $("#img_update").on('click', function(e) {
+                    var formData = new FormData();
+                    // formData.ppend(name, element);
+                    formData.append('myfile', $('input[name=myfileto]')[0].files[0]);
+                    formData.append("id", document.getElementById("b_id").value);
+                    formData.append("logo", document.getElementById("b_img").value)
+                    $.ajax({
+                        url: "{:url('brand/img_update')}",
+                        method: 'POST',
+                        data: formData,
+                        contentType: false, // 注意这里应设为false
+                        processData: false,
+                        cache: false,
+                        success: function(result) {
+                            console.log(result)
+                            if (result.status=='ok') {
+                                show();
+                                $("#modal-demo").modal("hide");
+                                b_die();
+                            }else{
+                                show();
+                                $("#modal-demo").modal("hide")
+                                b_die();
+                            }
+                        }
+
+
+                    })
+                });
+    })
+	$(document).ready(function(){		
+	   show()
+	})
+
+</script>
